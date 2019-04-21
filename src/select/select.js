@@ -1,4 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef } from "react";
+import useOutsideClick from "./commonUtils";
+import { dropDown, dropDownItem } from "./selectStyles";
 import { css } from "emotion";
 
 const SelectContext = React.createContext({
@@ -6,16 +8,20 @@ const SelectContext = React.createContext({
   onClick: () => {}
 });
 
-const labelStyle = css``;
-
 const { Provider } = SelectContext;
 
 function Select(props) {
+  const wrapperRef = useRef(null);
   const [selectedValue, setSelectedValue] = useState({
     value: "",
     label: ""
   });
   const [isOpen, handleOpen] = useState(false);
+  function handleClose() {
+    handleOpen(false);
+  }
+
+  useOutsideClick(wrapperRef, handleClose);
   function handleClick(option) {
     setSelectedValue(option);
     handleOpen(false);
@@ -23,6 +29,7 @@ function Select(props) {
   return (
     <Provider value={{ selectedValue, onClick: handleClick }}>
       <div
+        ref={wrapperRef}
         className={css`
           border: 1px solid grey;
         `}
@@ -36,30 +43,7 @@ function Select(props) {
         >
           {selectedValue.label || props.initialText}
         </div>
-        {isOpen ? (
-          <ul
-            className={css`
-              list-style: none;
-              padding: 0;
-              margin: 0;
-              & li {
-                padding: 10px;
-                border-bottom: 1px solid grey;
-                cursor: pointer;
-                text-align: center;
-              }
-
-              & li:first-child {
-                border-top: 1px solid grey;
-              }
-              & li:last-child {
-                border-bottom: none;
-              }
-            `}
-          >
-            {props.children}
-          </ul>
-        ) : null}
+        {isOpen ? <ul className={dropDown}>{props.children}</ul> : null}
       </div>
     </Provider>
   );
@@ -68,10 +52,11 @@ function Select(props) {
 function Option(props) {
   const { selectedValue, onClick } = useContext(SelectContext);
   const label = props.children;
-  const backgroundColor = props.value === selectedValue ? "grey" : "#fff";
+  const backgroundColor = props.value === selectedValue.value ? "#eee" : "#fff";
   return (
     <li
       className={css`
+        ${dropDownItem}
         background-color: ${backgroundColor};
       `}
       onClick={() => onClick({ value: props.value, label })}

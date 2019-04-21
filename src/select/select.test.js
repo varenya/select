@@ -1,9 +1,6 @@
 import React from "react";
-import { render, fireEvent, cleanup } from "react-testing-library";
+import { render, fireEvent } from "react-testing-library";
 import SelectWrapper from "./select";
-import "jest-dom/extend-expect";
-
-afterEach(cleanup);
 
 const { Select, Option } = SelectWrapper;
 
@@ -60,11 +57,27 @@ describe("Single Select", () => {
     );
     fireEvent.click(select.getByText("Please select a fruit"));
     fireEvent.click(select.getByText("Apple"));
-
     const selectedItem = select.getByTestId("selected-item");
-
     fireEvent.click(selectedItem);
+    expect(select.queryAllByText("Apple")[1]).toHaveStyle(
+      `background-color: #eee`
+    );
+  });
+  it("should close the dropdown on clicking outside", () => {
+    const select = render(
+      <div>
+        <div>Outside Dropdown</div>
+        <Select initialText="Please select a fruit">
+          <Option value="orange">Orange</Option>
+          <Option value="apple">Apple</Option>
+        </Select>
+      </div>
+    );
+    fireEvent.click(select.getByText("Please select a fruit"));
+    expect(select.queryAllByText("Orange")).toHaveLength(1);
 
-    expect(select.queryAllByText("Apple")[1]).toHaveStyle("background: grey");
+    fireEvent.click(select.getByText("Outside Dropdown"));
+    expect(select.queryAllByText("Orange")).toHaveLength(0);
+
   });
 });
