@@ -10,7 +10,7 @@ const dropDownItem = css`
   border-bottom: 1px solid grey;
   cursor: pointer;
   text-align: center;
-  &:first-child {
+  &:first-of-type {
     border-top: 1px solid grey;
   }
   &:last-child {
